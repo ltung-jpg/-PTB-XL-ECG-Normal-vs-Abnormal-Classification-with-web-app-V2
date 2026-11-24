@@ -1,0 +1,15 @@
+streamlit>=1.67.0
+scikit-learn  # install the SAME version as the Colab runtime that exported the model (see models/model_metadata.json)
+numpy>=2.5.3
+scipy>=1.18.1
+pandas>=3.0.5
+joblib>=1.6.0
+wfdb>=5.0.0
+pyedflib>=0.1.42
+shap>=0.54.1
+neurokit2>=0.3.0
+matplotlib>=3.11.2
+plotly>=5.20   # interactive ECG viewer (display only)
+pytest>=9.1.1
+nbformat>=5.11.1
+# optional, only for tests/visual (screenshot tests): playwright + pillow, and a Chrome/Chromium install

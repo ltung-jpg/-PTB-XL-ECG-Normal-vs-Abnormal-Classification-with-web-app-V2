@@ -1,0 +1,36 @@
+# "Clinical Burgundy & White" - light theme only (no dark mode). Values mirror ui/tokens.py (checked by tests/test_ui_theme.py).
+[theme]
+base = "light"
+primaryColor = "#9D3141"
+backgroundColor = "#F7F8FA"
+secondaryBackgroundColor = "#EEF1F6"
+textColor = "#202124"
+linkColor = "#9D3141"
+borderColor = "#DFE3E7"
+baseRadius = "12px"
+buttonRadius = "8px"
+showWidgetBorder = true
+showSidebarBorder = true
+font = "sans-serif"
+codeFont = "monospace"
+chartCategoricalColors = ["#9D3141", "#526A7A", "#6675A4", "#B9824F", "#33845B", "#466D95"]
+# status colours: AA-safe text variants on their tints
+greenColor = "#33845B"
+greenBackgroundColor = "#E8F5EC"
+greenTextColor = "#2E7953"
+orangeColor = "#A86F26"
+orangeBackgroundColor = "#FFF5E6"
+orangeTextColor = "#9A6622"
+yellowColor = "#A86F26"
+yellowBackgroundColor = "#FFF5E6"
+yellowTextColor = "#9A6622"
+redColor = "#B84242"
+redBackgroundColor = "#FCECEC"
+redTextColor = "#B84242"
+blueColor = "#466D95"
+blueBackgroundColor = "#EAF2F8"
+blueTextColor = "#466D95"
+
+[theme.sidebar]
+backgroundColor = "#FAFAFB"
+secondaryBackgroundColor = "#FFFFFF"
