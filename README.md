@@ -215,5 +215,3 @@ This software is for research and education. It is not a medical device, must no
 ## License
 
 No license has been specified yet. Add a `LICENSE` file to state how others may use this code. The PTB-XL data and its citation requirements are governed by PhysioNet.
-#   - P T B - X L - E C G - N o r m a l - v s - A b n o r m a l - C l a s s i f i c a t i o n - w i t h - a p p -  
- 
