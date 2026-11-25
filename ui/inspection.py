@@ -74,7 +74,6 @@ def field_states(rec, demographics: dict) -> list[dict]:
     miss = max((rec.quality.missing_fraction or {}).values(), default=0.0) if rec.quality else 0.0
     add("Missing samples", "AVAILABLE" if miss == 0 else "INVALID", "none" if miss == 0 else f"up to {100 * miss:.1f} % in a lead",
         "" if miss == 0 else "Shaded in the viewer")
-    add("Lead placement / polarity", "UNKNOWN", "", "Cannot be verified from the file")
     for key, label, unit in (("age", "Age", "years"), ("sex", "Sex", ""), ("height_cm", "Height", "cm"), ("weight_kg", "Weight", "kg")):
         v = demographics.get(key)
         if _num(v):
@@ -86,7 +85,6 @@ def field_states(rec, demographics: dict) -> list[dict]:
         add("BMI", "DERIVABLE", "from height and weight", "Computed by the feature pipeline")
     else:
         add("BMI", "MISSING", "Not provided", "Needs height and weight")
-    add("Dataset reference labels", "NOT APPLICABLE", "", "This app does not read dataset labels")
     return rows
 
 
@@ -136,25 +134,40 @@ MEASURE_META = {
     "tp_segment_ms": ("TP segment", "ms", 0, "ESTIMATED", "estimated"),
     "st_level_mv": ("ST level", "mV", 3, "ESTIMATED", "estimated"),
 }
+EXTRA_ORDER = ["pr_segment_ms", "st_segment_ms", "tp_segment_ms", "st_level_mv"]
 KPI_ORDER = ["hr_bpm", "rr_s", "pr_interval_ms", "qrs_duration_ms", "qt_ms", "qtc_bazett_ms", "p_duration_ms", "t_duration_ms"]
 VALIDITY_TEXT = {"measured": "Consistent across leads", "low_agreement": "Low agreement between leads - interpret with caution",
                  "not_measurable": "Not measurable in this recording"}
 
 
 def measurement_card(name: str, m, method: str) -> dict:
-    """KPI spec for one backend Measurement. Unavailable values stay None (displayed 'Not available', never 0)."""
+    """KPI spec for one backend Measurement. Unavailable values stay None (displayed 'Not available', never 0).
+    Only what the reader needs is on the card: value, evidence tag, a LOW AGREEMENT chip when the leads disagree."""
     label, unit, dec, tag, kind = MEASURE_META.get(name, (name, "", 3, "ESTIMATED", "estimated"))
     ok = m is not None and _num(m.value) and m.status != "not_measurable"
     value = None if not ok else (round(float(m.value), dec) if dec else int(round(float(m.value))))
-    spread = f"; inter-lead spread {m.spread:.{max(dec, 0)}f} {unit}" if ok and _num(m.spread) else ""
-    return {"label": label, "value": value, "unit": unit, "tag": tag, "tag_kind": kind,
-            "source": f"{method}; median, n = {m.n_beats}{spread}" if m is not None else method,
-            "validity": VALIDITY_TEXT.get(getattr(m, "status", "not_measurable"), ""), "note": (m.note or None) if m is not None else None, "key": name}
+    extra = ("LOW AGREEMENT", "needs_review") if ok and getattr(m, "status", "") == "low_agreement" else None
+    return {"label": label, "value": value, "unit": unit, "tag": tag, "tag_kind": kind, "extra_chip": extra, "key": name}
 
 
 def peaks_card(res) -> dict:
     n = res.qc.get("n_r_peaks") if res is not None and res.qc else None
-    corr = res.qc.get("beat_correlation") if res is not None and res.qc else None
-    return {"label": "Detected R-peaks", "value": None if n is None else int(n), "unit": None, "tag": "MEASURED", "tag_kind": "measured",
-            "source": "Model's peak detector, 10-s window (100 Hz grid)",
-            "validity": None if corr is None else f"Beat-to-beat correlation {corr:.2f}", "note": None, "key": "rpeaks"}
+    return {"label": "Detected R-peaks", "value": None if n is None else int(n), "unit": None, "tag": "MEASURED", "tag_kind": "measured", "key": "rpeaks"}
+
+
+def add_abnormality(card: dict, c, role: str | None) -> dict:
+    """Attach an 'abnormality' block to a card ONLY when its value lies outside the published range (c = Comparison or None).
+    Within range, indeterminate, no range or unavailable: nothing is attached, so no warning is shown."""
+    from . import triage as TR
+    if c is None or card.get("value") is None or c.no_range or c.status not in ("above", "below"):
+        return card
+    unit = card.get("unit") or ""
+    dev = TR.deviation(c, unit)["text"]
+    lines = []
+    guide = TR.GUIDE.get((c.measure, c.status))
+    if guide:
+        lines = list(guide[1]) if role == "Doctor" else ([guide[2]] if guide[2] else [])
+    high = c.measure == "qtc_bazett_ms" and c.status == "above" and c.value > TR.QTC_HIGH_RISK_MS
+    card["abnormality"] = {"title": "ABOVE RANGE" if c.status == "above" else "BELOW RANGE", "range": f"{c.range_text} {unit}".strip(), "deviation": dev,
+                           "high": high, "lines_title": "What to verify" if role == "Doctor" else "What it means", "lines": lines}
+    return card

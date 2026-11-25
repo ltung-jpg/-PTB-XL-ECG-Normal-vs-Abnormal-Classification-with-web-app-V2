@@ -12,6 +12,10 @@ buttonRadius = "8px"
 showWidgetBorder = true
 showSidebarBorder = true
 font = "sans-serif"
+# tables (History): red header with white text, black text on white cells, darker cell borders
+dataframeHeaderBackgroundColor = "#9D3141"
+dataframeHeaderTextColor = "#FFFFFF"
+dataframeBorderColor = "#6F757D"
 codeFont = "monospace"
 chartCategoricalColors = ["#9D3141", "#526A7A", "#6675A4", "#B9824F", "#33845B", "#466D95"]
 # status colours: AA-safe text variants on their tints

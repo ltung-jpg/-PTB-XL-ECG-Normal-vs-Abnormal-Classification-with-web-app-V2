@@ -31,7 +31,7 @@ GRID_MAJOR = "#D8DDE2"
 GRID_MINOR = "#EDF0F2"
 CHART_BG = "#FFFFFF"
 
-FONT_STACK = '"Source Sans 3", "Source Sans Pro", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+FONT_STACK = '"Inter", "Source Sans 3", "Source Sans Pro", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
 
 # evidence tags (colour never carries the meaning on its own: the label is always shown)
 #   kind -> (text, background)

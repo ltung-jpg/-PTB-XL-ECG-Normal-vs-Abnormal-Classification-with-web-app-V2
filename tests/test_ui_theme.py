@@ -150,19 +150,12 @@ def test_ui_app_starts_with_header_and_no_exception(monkeypatch, clf):
     assert not at.exception
     md = " ".join(m.value for m in at.markdown)
     assert "ECG Insight" in md and "Research prototype" in md and "<style>" in md
-    assert [e.label for e in at.sidebar.expander][:2] == ["File options (advanced)", "Patient information (optional)"]
+    assert "PTB-XL Normal vs Abnormal model" not in md and not at.sidebar.expander
 
 
 def test_ui_stub_model_banner_still_shown(monkeypatch, clf):
     at = new_app(monkeypatch, [])
     assert any("TEST-STUB MODEL ACTIVE" in e.value for e in at.error)
-
-
-def test_ui_patient_summary_reflects_inputs(monkeypatch, clf):
-    at = new_app(monkeypatch, [])
-    assert any("none provided" in c.value for c in at.sidebar.caption)
-    at.sidebar.number_input[1].set_value(60.0).run()
-    assert any("age provided" in c.value for c in at.sidebar.caption)
 
 
 def test_ui_kpi_card_never_shows_zero_for_unavailable():

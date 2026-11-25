@@ -21,4 +21,18 @@ the 5 s minimum, the beat-correlation gate (0.5) and the uncertainty floor (30 m
 * Wave boundaries are drawn only on the lead the consensus delineation reports (usually II).
 * Not implemented: dataset reference labels (PTB-XL `scp_codes`), non-12-lead records (e.g. MIT-BIH), PDF export, a custom Inter font (Streamlit's bundled Source Sans is used so the app works offline).
 * Recordings below 100 Hz and recordings that fail the quality checks (for example shorter than 5 s) are marked FAIL and not analyzed. The backend itself would have up-sampled a 50 Hz file; this is now refused at validation.
-* Reference-range results use neutral blue (within) and amber (outside) - never green / red - because a range comparison is not a clinical verdict.
+* Reference-range results: blue (within) and red (outside), always with a text label. Red marks a deviation from a published population range (requested after testing); it is not a clinical verdict. Nothing is green on a clinical value.
+
+## After the test round
+* The attention banner and the "what to verify / what it means" texts are generic, rule-based and not validated clinically. They never claim a diagnosis. QTc > 500 ms (higher torsades risk) is the only threshold added beyond the published ranges (AHA/ACCF statement, Drew 2010).
+* The commentary in the report is built from templates, not by a language model. Using a language model would need an API key and would send patient data to an outside service; it is not done here.
+* The model was trained on PTB-XL (resting hospital ECGs). Its accuracy on ambulance recordings, with more motion and mains noise, has not been measured.
+* R-peak markers in the viewer are placed on the highest QRS extremum of the shown lead (display only). The count of "Detected R-peaks" and the model features still come from the original detector; a QRS with no clear extremum (very small lead) can still get a marker on noise.
+* New input readers (.mat, HL7 aECG, GE MUSE, decimal-comma CSV) were tested with synthetic files that follow each format's layout. Philips XML, SCP-ECG, DICOM and other vendor formats are not read. A file that fails shows the reason.
+* History is stored in a local file (`history/`); on a hosted service it can disappear on restart.
+
+## After the second test round
+- Switching the lead selection or turning on the boundary markers only changes the chart; the measurements do not depend on them.
+- R-peak marker clean-up is display only. A marker may be hidden where the QRS is very small in the lead shown (for example lead III); the detector and the model features are unchanged.
+- History is saved when a recording is analyzed, before a role may have been chosen; the role is not part of the history table.
+- Tested here with the test-stub model only; loading the real model in the Python 3.13 environment is still to be confirmed (the TEST-STUB banner must disappear).
